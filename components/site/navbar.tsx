@@ -1,13 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { ShoppingBag, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { useCartStore } from "@/store/cart-store";
+import { useSession, signOut } from "@/lib/auth-client";
 
 export function Navbar() {
+  const [mounted, setMounted] = useState(false);
+
   const totalItems = useCartStore((state) => state.totalItems());
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-xl">
@@ -28,15 +37,29 @@ export function Navbar() {
             <Search className="h-5 w-5" />
           </Button>
 
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-          </Button>
+          {session?.user ? (
+            <Button
+              variant="ghost"
+              onClick={async () => {
+                await signOut();
+                window.location.href = "/";
+              }}
+            >
+              Logout
+            </Button>
+          ) : (
+            <Link href="/login">
+              <Button variant="ghost" size="icon">
+                <User className="h-5 w-5" />
+              </Button>
+            </Link>
+          )}
 
           <CartDrawer>
-            <Button size="icon" className="relative">
+            <Button size="icon" className="relative" type="button">
               <ShoppingBag className="h-5 w-5" />
 
-              {totalItems > 0 && (
+              {mounted && totalItems > 0 && (
                 <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white">
                   {totalItems}
                 </span>
