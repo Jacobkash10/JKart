@@ -1,3 +1,7 @@
+"use client";
+
+import { useCartStore } from "@/store/cart-store";
+import { toast } from "sonner";
 import { Heart, ShoppingBag, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -28,6 +32,8 @@ const products = [
 ];
 
 export function FeaturedProducts() {
+  const addItem = useCartStore((state) => state.addItem);
+
   return (
     <section className="bg-zinc-50 py-24">
       <div className="mx-auto max-w-7xl px-4">
@@ -91,7 +97,19 @@ export function FeaturedProducts() {
                 <div className="flex items-center justify-between">
                   <p className="text-xl font-black">{product.price}</p>
 
-                  <Button>
+                  <Button
+                    onClick={() => {
+                      addItem({
+                        id: product.name,
+                        name: product.name,
+                        price: Number(product.price.replace("$", "")),
+                        image: product.image,
+                        quantity: 1,
+                      });
+
+                      toast.success("Product added to cart");
+                    }}
+                  >
                     <ShoppingBag className="mr-2 h-4 w-4" />
                     Add
                   </Button>
